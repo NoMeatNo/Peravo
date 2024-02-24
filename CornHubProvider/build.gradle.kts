@@ -5,7 +5,7 @@ version = 8
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "Cornhub"
+    description = "Persian World"
     authors = listOf("Stormunblessed", "Jace", "KillerDogeEmpire", "Hexated", "Coxju")
 
     /**
@@ -22,7 +22,7 @@ cloudstream {
     // https://recloudstream.github.io/cloudstream/html/app/com.lagradost.cloudstream3/-tv-type/index.html
     tvTypes = listOf("NSFW")
 
-    iconUrl = "https://www.google.com/s2/favicons?domain=cornhub.website&sz=%size%"
+    iconUrl = "https://raw.githubusercontent.com/NoMeatNo/Peravo2/master/logos/peravo2.png"
 
     language = "en"
 }
