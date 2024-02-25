@@ -69,15 +69,14 @@ class CornHubProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        val url = "$mainUrl/video/search?search=${query}"
+        val url = "$mainUrl/search?q=${query.replace(" ", "+")}"
         val document = app.get(url, cookies = cookies).document
-        return document.select("div.sectionWrapper div.wrap").mapNotNull {
-            if (it == null) {
-                return@mapNotNull null
-            }
-            val title = it.selectFirst("span.title a")?.text() ?: return@mapNotNull null
-            val link = fixUrlNull(it.selectFirst("a")?.attr("href")) ?: return@mapNotNull null
-            val image = fetchImgUrl(it.selectFirst("img"))
+
+        return document.select("div.col-md-2.col-sm-3.col-xs-6").mapNotNull { resultElement ->
+            val title = resultElement.selectFirst("div.movie-title h3 a")?.text() ?: return@mapNotNull null
+            val link = fixUrlNull(resultElement.selectFirst("a")?.attr("href")) ?: return@mapNotNull null
+            val image = fixUrlNull(resultElement.selectFirst("div.latest-movie-img-container img")?.attr("src")) ?: return@mapNotNull null
+
             MovieSearchResponse(
                 name = title,
                 url = link,
@@ -90,46 +89,25 @@ class CornHubProvider : MainAPI() {
 
     override suspend fun load(url: String): LoadResponse {
         val soup = app.get(url, cookies = cookies).document
-        val title = soup.selectFirst(".title span")?.text() ?: ""
-        val poster: String? = soup.selectFirst("div.video-wrapper .mainPlayerDiv img")?.attr("src")
-            ?: soup.selectFirst("head meta[property=og:image]")?.attr("content")
-        val tags = soup.select("div.categoriesWrapper a")
-            .map { it?.text()?.trim().toString().replace(", ", "") }
+    
+     // Extracting poster URL
+        val poster = fixUrlNull(soup.selectFirst("div.col-md-3 img.img-responsive")?.attr("src"))
+    
+     // Extracting title
+        val title = soup.selectFirst("div.col-md-12 h1")?.text() ?: ""
 
-        val recommendations = soup.select("ul#recommendedVideos li.pcVideoListItem").map {
-            val rTitle = it.selectFirst("div.phimage a")?.attr("title") ?: ""
-            val rUrl = fixUrl(it.selectFirst("div.phimage a")?.attr("href").toString())
-            val rPoster = fixUrl(
-                it.selectFirst("div.phimage img.js-videoThumb")?.attr("src").toString()
-            )
-            MovieSearchResponse(
-                name = rTitle, apiName = this.name, url = rUrl, posterUrl = rPoster
-            )
-        }
+     // Extracting plot
+     //    val plot = soup.select("div.col-md-12 p").joinToString("\n") { it.text().trim() }
 
-        val actors =
-            soup.select("div.video-wrapper div.video-info-row.userRow div.userInfo div.usernameWrap a")
-                .map { it.text() }
+     // Extracting tags
+     //    val tags = soup.select("div.categoriesWrapper a").map { it.text().trim().replace(", ", "") }
 
-        val relatedVideo = soup.select("ul#relatedVideosCenter li.pcVideoListItem").map {
-            val rTitle = it.selectFirst("div.phimage a")?.attr("title") ?: ""
-            val rUrl = fixUrl(it.selectFirst("div.phimage a")?.attr("href").toString())
-            val rPoster = fixUrl(
-                it.selectFirst("div.phimage img.js-videoThumb")?.attr("src").toString()
-            )
-            MovieSearchResponse(
-                name = rTitle, apiName = this.name, url = rUrl, posterUrl = rPoster
-            )
-        }
-
-        return newMovieLoadResponse(title, url, TvType.NSFW, url) {
+        return newMovieLoadResponse(title, url, TvType.Movie, url) {
             this.posterUrl = poster
             this.plot = title
-            this.tags = tags
-            addActors(actors)
-            this.recommendations = recommendations + relatedVideo
         }
     }
+
 
     override suspend fun loadLinks(
         data: String,
