@@ -5,8 +5,8 @@ version = 8
 cloudstream {
     // All of these properties are optional, you can safely remove them
 
-    description = "Persian World"
-    authors = listOf("Stormunblessed", "Jace", "KillerDogeEmpire", "Hexated", "Coxju")
+    description = "Persian Worlds"
+    authors = listOf("N4S3R", "Stormunblessed", "Jace", "KillerDogeEmpire", "Hexated", "Coxju")
 
     /**
     * Status int as the following:
