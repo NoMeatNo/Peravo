@@ -12,7 +12,7 @@
         "tvTypes": [
             "NSFW"
         ],
-        "version": 8,
+        "version": 18,
         "internalName": "CornHubProvider",
         "description": "Persian Worlds",
         "url": "https://raw.githubusercontent.com/NoMeatNo/Peravo/builds/CornHubProvider.cs3",
