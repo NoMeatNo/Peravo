@@ -1,0 +1,8 @@
+{
+  "name": "Farsi's Extensions",
+  "description": "This Repo Contains Farsi's And More",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/NoMeatNo/Peravo/builds/plugins.json"
+  ]
+}
