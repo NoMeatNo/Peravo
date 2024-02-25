@@ -115,37 +115,27 @@ class CornHubProvider : MainAPI() {
         subtitleCallback: (SubtitleFile) -> Unit,
         callback: (ExtractorLink) -> Unit
     ): Boolean {
-        val request = app.get(
-            url = data, cookies = cookies
-        )
+        val request = app.get(url = data, cookies = cookies)
         val document = request.document
-        val mediaDefinitions = JSONObject(
-            document.selectXpath("//script[contains(text(),'flashvars')]").first()?.data()
-                ?.substringAfter("=")?.substringBefore(";")
-        ).getJSONArray("mediaDefinitions")
 
-        for (i in 0 until mediaDefinitions.length()) {
-            if (mediaDefinitions.getJSONObject(i).optString("quality") != null) {
-                val quality = mediaDefinitions.getJSONObject(i).getString("quality")
-                val videoUrl = mediaDefinitions.getJSONObject(i).getString("videoUrl")
-                val extlinkList = mutableListOf<ExtractorLink>()
-                M3u8Helper().m3u8Generation(
-                    M3u8Helper.M3u8Stream(
-                        videoUrl
-                    ), true
-                ).apmap { stream ->
-                    extlinkList.add(ExtractorLink(
-                        source = name,
-                        name = "${this.name}",
-                        url = stream.streamUrl,
-                        referer = mainUrl,
-                        quality = Regex("(\\d+)").find(quality ?: "")?.groupValues?.get(1)
-                            .let { getQualityFromName(it) },
-                        isM3u8 = true
-                    ))
-                }
-                extlinkList.forEach(callback)
-            }
+     // Find the video element with id "play_html5_api"
+        val videoElement = document.selectFirst("video#play_html5_api")
+
+        if (videoElement != null) {
+        // Extract the MP4 link from the src attribute
+            val mp4Link = videoElement.attr("src")
+
+        // Create an ExtractorLink and pass it to the callback
+            callback(
+                ExtractorLink(
+                    source = name,
+                    name = "${this.name} (MP4)",
+                    url = mp4Link,
+                    referer = mainUrl,
+                    quality = "MP4", // You can set the quality to a specific value
+                    isM3u8 = false // Since it's an MP4 link
+                )
+            )
         }
 
         return true
