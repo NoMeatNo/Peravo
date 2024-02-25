@@ -40,8 +40,6 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
-        with:
-          sdk-version: '30.0.2'
 
       - name: Build Plugins
         run: |
